@@ -18,7 +18,7 @@ specifiers:
 
 dependencies:
   decky-frontend-lib: 3.0.0
-  react-icons: 4.4.0
+  react-icons: 4.6.0
 
 devDependencies:
   '@rollup/plugin-commonjs': 21.1.0_rollup@2.77.1
@@ -682,8 +682,8 @@ packages:
       safe-buffer: 5.2.1
     dev: true
 
-  /react-icons/4.4.0:
-    resolution: {integrity: sha512-fSbvHeVYo/B5/L4VhB7sBA1i2tS8MkT0Hb9t2H1AVPkwGfVHLJCqyr2Py9dKMxsyM63Eng1GkdZfbWj+Fmv8Rg==}
+  /react-icons/4.6.0:
+    resolution: {integrity: sha512-rR/L9m9340yO8yv1QT1QurxWQvWpbNHqVX0fzMln2HEb9TEIrQRGsqiNFQfiv9/JEUbyHmHPlNTB2LWm2Ttz0g==}
     peerDependencies:
       react: '*'
     peerDependenciesMeta:
