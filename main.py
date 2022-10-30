@@ -53,3 +53,7 @@ class Plugin:
         logger.info("Images dir: " + self.images_dir)
 
         os.makedirs(self.images_dir, exist_ok=True)
+    
+    async def _unload(self):
+        logger.info("Unload")
+        pass
