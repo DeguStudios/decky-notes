@@ -1,4 +1,5 @@
 import logging
+import logging.handlers
 import os
 import subprocess
 import base64
@@ -10,11 +11,11 @@ import pwd
 from pathlib import Path
 from datetime import datetime
 
-logging.basicConfig(filename="/tmp/decky-notes.log",
-                    format='[Template] %(asctime)s %(levelname)s %(message)s',
-                    filemode='w+',
-                    force=True)
-logger=logging.getLogger()
+formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+handler = logging.handlers.RotatingFileHandler("/tmp/decky-notes.log", maxBytes=1024*1024, backupCount=8)
+handler.setFormatter(formatter)
+logger = logging.getLogger()
+logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 
 class Plugin:
@@ -43,6 +44,8 @@ class Plugin:
         os.remove(full_path)
 
     async def _main(self):
+        logger.info("Load decky notes")
+
         self.plugin_dir = str(Path(__file__).resolve().parent)
         user_name = subprocess.check_output("who | awk '{print $1}' | sort | head -1", shell=True).decode().strip()
         home_dir = pwd.getpwnam(user_name).pw_dir
@@ -55,5 +58,4 @@ class Plugin:
         os.makedirs(self.images_dir, exist_ok=True)
     
     async def _unload(self):
-        logger.info("Unload")
-        pass
+        logger.info("Unload decky notes")
