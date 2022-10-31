@@ -39,7 +39,7 @@
         {
             "label": "buildall",
             "group": "build",
-            "detail": "Build decky-plugin-template",
+            "detail": "Build decky-notes",
             "dependsOrder": "sequence",
             "dependsOn": [
                 "pnpmsetup",
