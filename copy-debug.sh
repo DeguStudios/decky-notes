@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TARGET=~/projects/decky-loader/plugins/decky-plugin-template
+TARGET=~/projects/decky-loader/plugins/decky-notes
 
 bash "./build.sh"
 
