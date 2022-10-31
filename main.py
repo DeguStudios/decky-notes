@@ -10,12 +10,12 @@ import pwd
 from pathlib import Path
 from datetime import datetime
 
-logging.basicConfig(filename="/tmp/template.log",
+logging.basicConfig(filename="/tmp/decky-notes.log",
                     format='[Template] %(asctime)s %(levelname)s %(message)s',
                     filemode='w+',
                     force=True)
 logger=logging.getLogger()
-logger.setLevel(logging.INFO) # can be changed to logging.DEBUG for debugging issues
+logger.setLevel(logging.INFO)
 
 class Plugin:
     def __encode_image(self, image_bytes):
