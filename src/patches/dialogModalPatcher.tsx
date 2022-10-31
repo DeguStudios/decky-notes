@@ -14,7 +14,7 @@ export const PatchModalService = (callback:(e:any, ret:any) => void) => {
     const original = dialogModule.m_ctorContextMenu;
     if (original.name !== 'contextMenuWrapper') {
         const contextMenuWrapper = class extends original {
-            constructor(e, t, r, n, i) {
+            constructor(e: { type: any; }, t: any, r: any, n: any, i: any) {
                 afterPatch(e.type, 'type', (_, ret) => {
                     callback(e, ret);
                     return ret;

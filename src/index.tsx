@@ -6,7 +6,7 @@ import {
     findModuleChild
 } from "decky-frontend-lib";
 import { VFC } from "react";
-import { FaShip } from "react-icons/fa";
+import { BsPencilSquare } from "react-icons/bs";
 
 import Whiteboard from "./components/Whiteboard";
 import Gallery from "./components/Gallery";
@@ -67,17 +67,24 @@ const patchDeckyNotesButtonIntoDialogModal = (goToWhiteBoard: (screenshotHandle:
             }
         }
     })
+    const DeckyNotesButtonId = 'c380565cddab4d1294086a3b29dc96bf';
     const DeckyNotesButton = ({screenshotHandle}:{screenshotHandle:string}): JSX.Element => {
         return (
-            <ModalDialogButton onSelected={() => goToWhiteBoard(screenshotHandle)}>Edit in Decky Notes</ModalDialogButton>
+            <ModalDialogButton onSelected={() => goToWhiteBoard(screenshotHandle)}><BsPencilSquare/> Edit in Decky Notes</ModalDialogButton>
         );
     };
+    DeckyNotesButton.__id = DeckyNotesButtonId;
+
     return PatchModalService((e, ret) => {
         if (/^.*\/routes\/media(\/.*)?$/.test(window.location.href)) {
             const screenshotHandle = e.props.screenshotHandle;
-            const existingDeckyNotesButton = ret.props.children.find((x:any) => x.type === DeckyNotesButton);
+            const existingDeckyNotesButton = ret.props.children.find((x:any) => x?.type?.__id === DeckyNotesButtonId);
             if (!existingDeckyNotesButton) {
-                ret.props.children.unshift(
+                var separatorIndex = ret.props.children.lastIndexOf(false);
+                var insertIndex = separatorIndex === -1 
+                    ? ret.props.children.length
+                    : separatorIndex;
+                ret.props.children.splice(insertIndex, 0,
                     <DeckyNotesButton screenshotHandle={screenshotHandle} />
                 );
             } else if (existingDeckyNotesButton.props.screenshotHandle !== screenshotHandle) {
@@ -144,7 +151,7 @@ export default definePlugin((serverApi: ServerAPI) => {
     return {
         title: <div className={staticClasses.Title}>Decky Notes</div>,
         content: <SideMenu notifier={screenshotNotifier} />,
-        icon: <FaShip />,
+        icon: <BsPencilSquare />,
         onDismount() {
             patch.unpatch();
             serverApi.routerHook.removeRoute(WhiteboardRoutePath);
