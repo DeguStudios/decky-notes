@@ -46,7 +46,8 @@ const addGalleryRoute = (serverApi: ServerAPI, imageService:ImageService) => {
         return (
             <Gallery getAllImages={() => imageService.callListImagesApi()} 
                      getImage={(fileName) => imageService.callGetImageApi(fileName)}
-                     deleteImage={(fileName) => imageService.callDeleteImageApi(fileName)}></Gallery>
+                     deleteImage={(fileName) => imageService.callDeleteImageApi(fileName)}
+                     getThumbnailImage={(fileName) => imageService.callGetThumbnailApi(fileName)}></Gallery>
         );
     };
 
@@ -108,14 +109,14 @@ export default definePlugin((serverApi: ServerAPI) => {
             var screenshot = await steamClient.Screenshots.GetLastScreenshotTaken();
             var handle = steamClient.GameSessions.RegisterForScreenshotNotification((notification) => {
                 callback({
-                    ImageSrcUrl: SteamLocalHost + notification.details.strUrl,
+                    ImageSrcUrl: `${SteamLocalHost}/${notification.details.strUrl}`,
                     ScreenshotHandle: `local_${notification.details.hHandle.toString()}`
                 })
             });
             screenshotUnregisterStorage.set(callback, handle);
             if (screenshot?.strUrl) {
                 callback({
-                    ImageSrcUrl: SteamLocalHost + screenshot.strUrl,
+                    ImageSrcUrl: `${SteamLocalHost}/${screenshot.strUrl}`,
                     ScreenshotHandle: `local_${screenshot.hHandle.toString()}`
                 })
             }
