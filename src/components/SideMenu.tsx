@@ -5,7 +5,6 @@ import {
     Router
 } from "decky-frontend-lib";
 import { useEffect, useState, VFC } from "react";
-import logo from "../../assets/logo.png";
 import { GalleryRoutePath, MediaRoutePath, WhiteboardRoutePath } from "../routes";
 
 export interface ScreenshotNotification {
@@ -38,26 +37,23 @@ export const SideMenu: VFC<{notifier:ScreenshotNotifier}> = ({notifier}): JSX.El
         <PanelSection title="Home">
             <PanelSectionRow>
                 <div style={{ display: "flex", justifyContent: "center" }}>
-                    <img src={logo} />
-                </div>
-            </PanelSectionRow>
-            <PanelSectionRow>
-                <div style={{ display: "flex", justifyContent: "center" }}>
                     {recentImageSrc 
-                        ? <img src={recentImageSrc} />
+                        ? <img src={recentImageSrc} style={{width: '100%'}} />
                         : <p>No recent screenshot...</p>}                    
                 </div>
-                <ButtonItem
-                    disabled={recentImageHandle 
-                        ? false
-                        : true}
-                    layout="below"
-                    onClick={() => {
-                        Router.CloseSideMenus();
-                        Router.Navigate(`${WhiteboardRoutePath}/${recentImageHandle}`);
-                    }}>
-                    Add notes to recent screenshot
-                </ButtonItem>
+                {recentImageHandle 
+                    ? <ButtonItem
+                        disabled={recentImageHandle 
+                            ? false
+                            : true}
+                        layout="below"
+                        onClick={() => {
+                            Router.CloseSideMenus();
+                            Router.Navigate(`${WhiteboardRoutePath}/${recentImageHandle}`);
+                        }}>
+                        Add notes to recent screenshot
+                     </ButtonItem>
+                    : null}                
                 <ButtonItem
                     layout="below"
                     onClick={() => {

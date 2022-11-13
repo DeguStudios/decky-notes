@@ -1,5 +1,7 @@
 # Decky Notes
 
+![Logo](./assets/logo.png)
+
 Make notes and draw over your screenshots
 
 ![Whiteboard](./assets/drawing.png)

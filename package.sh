@@ -2,7 +2,7 @@
 
 bash "./build.sh"
 
-PLUGIN_NAME=example-plugin
+PLUGIN_NAME=deckyNotes
 TARGET=$PLUGIN_NAME
 ZIP_NAME=$PLUGIN_NAME-v0.0.0.zip
 

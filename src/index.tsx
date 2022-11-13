@@ -17,6 +17,8 @@ import { PatchModalService } from "./patches/dialogModalPatcher";
 import { ScreenshotNotification, SideMenu } from "./components/SideMenu";
 import { GalleryRoutePath, WhiteboardRoutePath } from "./routes";
 
+const steamLocalHost = 'https://steamloopback.host/';
+
 const addWhiteboardRoute = (
     serverApi: ServerAPI, 
     findScreenshotUrl: (path:string|undefined) => Promise<string>,
@@ -97,7 +99,7 @@ const patchDeckyNotesButtonIntoDialogModal = (goToWhiteBoard: (screenshotHandle:
 export default definePlugin((serverApi: ServerAPI) => {
     const imageService = GetImageService(serverApi);
     const steamClient = GetSteamClient();
-    const steamService = GetSteamService();
+    const steamService = GetSteamService(steamClient);
 
     const screenshotUnregisterStorage = new Map<(notification: ScreenshotNotification) => void, UnregisterHandle>();
     const screenshotNotifier = {
@@ -105,20 +107,24 @@ export default definePlugin((serverApi: ServerAPI) => {
             var screenshot = await steamClient.Screenshots.GetLastScreenshotTaken();
             var handle = steamClient.GameSessions.RegisterForScreenshotNotification((notification) => {
                 callback({
-                    ImageSrcUrl: notification.details.strUrl,
+                    ImageSrcUrl: steamLocalHost + notification.details.strUrl,
                     ScreenshotHandle: `local_${notification.details.hHandle.toString()}`
                 })
             });
             screenshotUnregisterStorage.set(callback, handle);
             if (screenshot) {
                 callback({
-                    ImageSrcUrl: screenshot.strUrl,
+                    ImageSrcUrl: steamLocalHost + screenshot.strUrl,
                     ScreenshotHandle: `local_${screenshot.hHandle.toString()}`
                 })
             }
         },
         unregisterForScreenshotNotifications: (callback: (notification: ScreenshotNotification) => void) =>{
-            screenshotUnregisterStorage.get(callback)?.unregister();
+            var handle = screenshotUnregisterStorage.get(callback);
+            if (handle) {
+                handle.unregister();
+                screenshotUnregisterStorage.delete(callback);
+            }
         }
     };
 
@@ -126,8 +132,12 @@ export default definePlugin((serverApi: ServerAPI) => {
         if (!screenshotHandle) {
             return '';
         }
-        var result = await steamService.getScreenshotDetails(screenshotHandle);
-        return result.image_url;
+        var result = await steamService.tryGetScreenshotDetails(screenshotHandle);
+        if (result) {
+            return steamLocalHost + result.image_url;
+        } else {
+            return '';
+        }
     }
 
     const saveImageAndNotify = async (image: string): Promise<void> => {
