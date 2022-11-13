@@ -1,4 +1,6 @@
 import React, { TouchEvent, MouseEvent, CSSProperties, useRef, useState, useEffect } from 'react';
+import { IconType } from 'react-icons';
+import { FaPaintBrush, FaEraser, FaTrashAlt, FaSave } from "react-icons/fa";
 
 interface Position {
   x: number,
@@ -31,7 +33,10 @@ export function Whiteboard({pickImage, saveWhiteboard} : WhiteboardHandler) {
   const uiLayerStyle: CSSProperties = {
     zIndex: 3,
     position: "absolute",
-    marginTop: steamBorderMargin
+    marginTop: steamBorderMargin,
+    display: 'flex',
+    justifyContent: 'center',
+    width: '100%'
   }
 
   const black = '#000000';
@@ -217,13 +222,29 @@ export function Whiteboard({pickImage, saveWhiteboard} : WhiteboardHandler) {
     });
   }
 
+  const TopMenuButton = (props: {onClick: () => void, Icon: IconType, title: string, disabled?: boolean, style?: React.CSSProperties}) => {
+    return (
+      <button onClick={() => props.onClick()} 
+              style={{width: '64px', height: '64px', borderRadius: '16px', 
+                      backgroundColor: props.disabled ? 'gray' : 'white', borderColor: props.disabled ? 'gray' : 'white',
+                      outline: 'none',
+                      ...props.style}} 
+              disabled={props.disabled}>
+                <div>
+                  <props.Icon style={{fontSize: '24px'}} />
+                  <span style={{fontWeight: 'bold', fontSize: '12px', lineHeight: '22px', letterSpacing: '.5px', textTransform: 'uppercase'}}>{props.title}</span>
+                </div>
+      </button>
+    );
+  }
+
   const DrawingButton = (props: {color: string}) => {
     return (
-      <button onClick={() => setToDraw(props.color)} 
-              style={{color: props.color}} 
-              disabled={!isErasing && drawColor === props.color}>
-        Draw
-      </button>
+      <TopMenuButton onClick={() => setToDraw(props.color)} 
+                     style={{color: props.color}} 
+                     disabled={!isErasing && drawColor === props.color}
+                     Icon={FaPaintBrush}
+                     title={"Draw"}></TopMenuButton>
     );
   }
 
@@ -255,9 +276,9 @@ export function Whiteboard({pickImage, saveWhiteboard} : WhiteboardHandler) {
         <DrawingButton color={green}></DrawingButton>
         <DrawingButton color={blue}></DrawingButton>
         <DrawingButton color={yellow}></DrawingButton>
-        <button onClick={setToErase} disabled={isErasing}>Erase</button>
-        <button onClick={clearDrawing}>Clear</button>
-        <button onClick={saveDrawing}>Save Drawing</button>
+        <TopMenuButton onClick={setToErase} disabled={isErasing} title="Erase" Icon={FaEraser}></TopMenuButton>
+        <TopMenuButton onClick={clearDrawing} title="Clear" Icon={FaTrashAlt}></TopMenuButton>
+        <TopMenuButton onClick={saveDrawing} title="Save" Icon={FaSave}></TopMenuButton>
       </div>
     </div>
   );
