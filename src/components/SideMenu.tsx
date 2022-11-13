@@ -5,7 +5,7 @@ import {
     Router
 } from "decky-frontend-lib";
 import { useEffect, useState, VFC } from "react";
-import { GalleryRoutePath, MediaRoutePath, WhiteboardRoutePath } from "../routes";
+import { GalleryRoutePath, MediaRoutePath, WhiteboardRoutePath } from "../consts";
 
 export interface ScreenshotNotification {
     ImageSrcUrl: string;

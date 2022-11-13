@@ -1,4 +1,5 @@
 import { findModuleChild } from "decky-frontend-lib";
+import { SteamLocalHost } from "../consts";
 import { SteamClientHandle } from "./steamClient";
 
 const packetGenerator = findModuleChild((m) => {
@@ -53,7 +54,7 @@ const getScreenshotDetails = async (steamClient: SteamClientHandle, screenshotHa
 
         return {
             consumer_appid: screenshot.nAppID,
-            image_url:screenshot.strUrl
+            image_url: `${SteamLocalHost}/${screenshot.strUrl}`
         };
     } else {
         request.Body().set_publishedfileids([id]);

@@ -25,13 +25,16 @@ class Plugin:
     async def save_image(self, image, file_name):
         image_bytes = base64.b64decode(image)
         full_path = os.path.join(self.images_dir, file_name)
+        dir = os.path.dirname(full_path)
+        if not os.path.exists(dir):
+            os.makedirs(dir)
         with open(full_path, 'ab') as file:
             file.write(image_bytes)
         logger.info("New screenshot at: " + full_path)
         return full_path
     
     async def list_images(self):
-        return [*map(lambda x : os.path.basename(x), glob.glob(self.images_dir + "/*"))]
+        return [*map(lambda x : os.path.basename(x), glob.glob(self.images_dir + "/*.*"))]
     
     async def get_image(self, file_name):
         full_path = os.path.join(self.images_dir, file_name)
