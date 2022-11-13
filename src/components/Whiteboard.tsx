@@ -5,12 +5,18 @@ interface Position {
   y: number
 }
 
-interface WhiteboardHandler {
-  pickImage: () => Promise<string>,
-  saveWhiteboard: (encodedImage:string) => Promise<void>,
+export interface WhiteboardState {
+  imageDataUrl: string,
+  thumbnailDataUrl: string,
+  iconDataUrl: string
 }
 
-function Whiteboard({pickImage, saveWhiteboard} : WhiteboardHandler) {
+interface WhiteboardHandler {
+  pickImage: () => Promise<string>,
+  saveWhiteboard: (encodedImage:WhiteboardState) => Promise<void>,
+}
+
+export function Whiteboard({pickImage, saveWhiteboard} : WhiteboardHandler) {
   const steamBorderMargin = 40;
   const backgroundLayerStyle: CSSProperties = {
     zIndex: 1,
@@ -137,7 +143,7 @@ function Whiteboard({pickImage, saveWhiteboard} : WhiteboardHandler) {
         var context = getBackgroundContext();
         let image = new Image();
         image.crossOrigin="anonymous";
-        image.src = imageUrl;//'data:image/jpeg;base64,'+ encodedImage
+        image.src = imageUrl;
         image.onload = () => {
           context.drawImage(image, 0, 0, context.canvas.width, context.canvas.height);
         }
@@ -167,15 +173,48 @@ function Whiteboard({pickImage, saveWhiteboard} : WhiteboardHandler) {
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
   }
 
-  const saveDrawing = () => {
+  const saveFullSizeCanvas = (backgroundCanvas:HTMLCanvasElement, drawingCanvas:HTMLCanvasElement) => {
     let tempCanvas = document.createElement('canvas');
-    tempCanvas.width = getBackgroundContext().canvas.width;
-    tempCanvas.height = getBackgroundContext().canvas.height;
+    tempCanvas.width = backgroundCanvas.width;
+    tempCanvas.height = backgroundCanvas.height;
     let tempContext = tempCanvas.getContext('2d');
-    tempContext!.drawImage(getBackgroundContext().canvas, 0, 0);
-    tempContext!.drawImage(getDrawingContext().canvas, 0, 0);
-    var dataUrl = tempCanvas.toDataURL('image/png');
-    saveWhiteboard(dataUrl);
+    tempContext!.drawImage(backgroundCanvas, 0, 0, tempCanvas.width, tempCanvas.height);
+    tempContext!.drawImage(drawingCanvas, 0, 0, tempCanvas.width, tempCanvas.height);
+    return tempCanvas.toDataURL('image/png');
+  }
+
+  const saveThumbnailCanvas = (backgroundCanvas:HTMLCanvasElement, drawingCanvas:HTMLCanvasElement) => {
+    let tempCanvas = document.createElement('canvas');
+    tempCanvas.width = 200;
+    tempCanvas.height = tempCanvas.width * (backgroundCanvas.height / backgroundCanvas.width);
+    let tempContext = tempCanvas.getContext('2d');
+    tempContext!.drawImage(backgroundCanvas, 0, 0, tempCanvas.width, tempCanvas.height);
+    tempContext!.drawImage(drawingCanvas, 0, 0, tempCanvas.width, tempCanvas.height);
+    return tempCanvas.toDataURL('image/png');
+  }
+
+  const saveIconCanvas = (backgroundCanvas:HTMLCanvasElement, drawingCanvas:HTMLCanvasElement) => {
+    let tempCanvas = document.createElement('canvas');
+    tempCanvas.width = 40;
+    tempCanvas.height = 40;
+    const iconWidth = tempCanvas.width;
+    const iconHeight = tempCanvas.width * (backgroundCanvas.height / backgroundCanvas.width);
+    var heightOffset = (tempCanvas.width - iconHeight)/2;
+    let tempContext = tempCanvas.getContext('2d');
+    tempContext!.drawImage(backgroundCanvas, 0, heightOffset, iconWidth, iconHeight);
+    tempContext!.drawImage(drawingCanvas, 0, heightOffset, iconWidth, iconHeight);
+    return tempCanvas.toDataURL('image/png');
+  }
+
+  const saveDrawing = () => {
+    var fullCanvasDataUrl = saveFullSizeCanvas(getBackgroundContext().canvas, getDrawingContext().canvas);
+    var thumbnailCanvasDataUrl = saveThumbnailCanvas(getBackgroundContext().canvas, getDrawingContext().canvas);
+    var iconCanvasDataUrl = saveIconCanvas(getBackgroundContext().canvas, getDrawingContext().canvas);
+    saveWhiteboard({
+      imageDataUrl: fullCanvasDataUrl,
+      thumbnailDataUrl: thumbnailCanvasDataUrl,
+      iconDataUrl: iconCanvasDataUrl
+    });
   }
 
   const DrawingButton = (props: {color: string}) => {
@@ -223,5 +262,3 @@ function Whiteboard({pickImage, saveWhiteboard} : WhiteboardHandler) {
     </div>
   );
 }
-
-export default Whiteboard;

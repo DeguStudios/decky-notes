@@ -1,9 +1,11 @@
 import { ServerAPI } from "decky-frontend-lib";
+const thumbnailsDirectory = 'thumbnails';
 
 export interface ImageService {
-    callSaveImageApi: (image: string) => Promise<string>;
+    callSaveImageApi: (image: string, thumbnail: string) => Promise<string>;
     callListImagesApi: () => Promise<string[]>;
     callGetImageApi: (fileName: string) => Promise<string>;
+    callGetThumbnailApi: (fileName: string) => Promise<string>;
     callDeleteImageApi: (fileName: string) => Promise<void>
 }
 
@@ -37,7 +39,7 @@ const deleteImage = async (serverAPI: ServerAPI, fileName: string): Promise<void
     }
 }
 
-const saveImage = async (serverAPI: ServerAPI, encodedImage: string) => {
+const saveImage = async (serverAPI: ServerAPI, encodedImage: string, fileName: string) => {
     const maxSize = (1024 * 1024) / 2;
     const encodedBytes = encodedImage.split(',')[1];
     const binaryImage = atob(encodedBytes);
@@ -47,8 +49,6 @@ const saveImage = async (serverAPI: ServerAPI, encodedImage: string) => {
     const parts = [...Array(partsCount).keys()]
                     .map(index => binaryImage.slice(partSize*index,((partSize*index)+partSize)+(index===(partsCount-1)?leftOver:0)))
                     .map(binary => btoa(binary))
-    const date = new Date();
-    const fileName = `${date.getFullYear()}${date.getMonth()}${date.getDay()}${date.getHours()}${date.getMinutes()}${date.getSeconds()}${date.getMilliseconds()}.png`
     for (const part of parts) {
         await saveImagePart(serverAPI, part, fileName);
     }
@@ -57,9 +57,19 @@ const saveImage = async (serverAPI: ServerAPI, encodedImage: string) => {
 
 export const GetImageService = (serverAPI:ServerAPI):ImageService => {
     return {
-        callSaveImageApi: (image: string) => saveImage(serverAPI, image),
+        callSaveImageApi: async (image: string, thumbnail: string) => {
+            const date = new Date();
+            const fileName = `${date.getFullYear()}${date.getMonth()}${date.getDay()}${date.getHours()}${date.getMinutes()}${date.getSeconds()}${date.getMilliseconds()}.png`;
+            await saveImage(serverAPI, image, fileName);
+            await saveImage(serverAPI, thumbnail, `${thumbnailsDirectory}/${fileName}`);
+            return fileName;
+        },
         callListImagesApi: () => listImages(serverAPI),
         callGetImageApi: (fileName: string) => getImage(serverAPI, fileName),
-        callDeleteImageApi: (fileName: string) => deleteImage(serverAPI, fileName)
+        callGetThumbnailApi: (fileName: string) => getImage(serverAPI, `${thumbnailsDirectory}/${fileName}`),
+        callDeleteImageApi: async (fileName: string) => {
+            await deleteImage(serverAPI, fileName);
+            await deleteImage(serverAPI, `${thumbnailsDirectory}/${fileName}`);
+        }
     }
 };

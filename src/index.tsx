@@ -8,21 +8,19 @@ import {
 import { VFC } from "react";
 import { BsPencilSquare } from "react-icons/bs";
 
-import Whiteboard from "./components/Whiteboard";
+import { Whiteboard, WhiteboardState } from "./components/Whiteboard";
 import Gallery from "./components/Gallery";
 import { GetImageService, ImageService } from "./services/imageService";
 import { GetSteamClient, UnregisterHandle } from "./steam/steamClient";
 import { GetSteamService } from "./steam/steamService";
 import { PatchModalService } from "./patches/dialogModalPatcher";
 import { ScreenshotNotification, SideMenu } from "./components/SideMenu";
-import { GalleryRoutePath, WhiteboardRoutePath } from "./routes";
-
-const steamLocalHost = 'https://steamloopback.host/';
+import { GalleryRoutePath, SteamLocalHost, WhiteboardRoutePath } from "./consts";
 
 const addWhiteboardRoute = (
     serverApi: ServerAPI, 
     findScreenshotUrl: (path:string|undefined) => Promise<string>,
-    saveImageAndNotify: (image:string) => Promise<void>) => {
+    saveImageAndNotify: (image:WhiteboardState) => Promise<void>) => {
 
     interface WhiteboardRouteParameters {
         path: string | undefined;
@@ -31,7 +29,7 @@ const addWhiteboardRoute = (
     const WhiteboardRoute: VFC<WhiteboardRouteParameters> = ({path}) => {
         return (
             <Whiteboard pickImage={() => findScreenshotUrl(path)} 
-                        saveWhiteboard={(image) => saveImageAndNotify(image)}></Whiteboard>
+                        saveWhiteboard={(state) => saveImageAndNotify(state)}></Whiteboard>
         );
     };
 
@@ -48,7 +46,8 @@ const addGalleryRoute = (serverApi: ServerAPI, imageService:ImageService) => {
         return (
             <Gallery getAllImages={() => imageService.callListImagesApi()} 
                      getImage={(fileName) => imageService.callGetImageApi(fileName)}
-                     deleteImage={(fileName) => imageService.callDeleteImageApi(fileName)}></Gallery>
+                     deleteImage={(fileName) => imageService.callDeleteImageApi(fileName)}
+                     getThumbnailImage={(fileName) => imageService.callGetThumbnailApi(fileName)}></Gallery>
         );
     };
 
@@ -80,6 +79,9 @@ const patchDeckyNotesButtonIntoDialogModal = (goToWhiteBoard: (screenshotHandle:
     return PatchModalService((e, ret) => {
         if (/^.*\/routes\/media(\/.*)?$/.test(window.location.href)) {
             const screenshotHandle = e.props.screenshotHandle;
+            if (!e.props.screenshotHandle){
+                return;
+            }
             const existingDeckyNotesButton = ret.props.children.find((x:any) => x?.type?.__id === DeckyNotesButtonId);
             if (!existingDeckyNotesButton) {
                 var separatorIndex = ret.props.children.lastIndexOf(false);
@@ -107,14 +109,14 @@ export default definePlugin((serverApi: ServerAPI) => {
             var screenshot = await steamClient.Screenshots.GetLastScreenshotTaken();
             var handle = steamClient.GameSessions.RegisterForScreenshotNotification((notification) => {
                 callback({
-                    ImageSrcUrl: steamLocalHost + notification.details.strUrl,
+                    ImageSrcUrl: `${SteamLocalHost}/${notification.details.strUrl}`,
                     ScreenshotHandle: `local_${notification.details.hHandle.toString()}`
                 })
             });
             screenshotUnregisterStorage.set(callback, handle);
-            if (screenshot) {
+            if (screenshot?.strUrl) {
                 callback({
-                    ImageSrcUrl: steamLocalHost + screenshot.strUrl,
+                    ImageSrcUrl: `${SteamLocalHost}/${screenshot.strUrl}`,
                     ScreenshotHandle: `local_${screenshot.hHandle.toString()}`
                 })
             }
@@ -134,17 +136,18 @@ export default definePlugin((serverApi: ServerAPI) => {
         }
         var result = await steamService.tryGetScreenshotDetails(screenshotHandle);
         if (result) {
-            return steamLocalHost + result.image_url;
+            return result.image_url;
         } else {
             return '';
         }
     }
 
-    const saveImageAndNotify = async (image: string): Promise<void> => {
-        var fileName = await imageService.callSaveImageApi(image);
+    const saveImageAndNotify = async (state: WhiteboardState): Promise<void> => {
+        var fileName = await imageService.callSaveImageApi(state.imageDataUrl, state.thumbnailDataUrl);
         serverApi.toaster.toast({
             title: 'Note saved!',
-            body: 'Saved at: ' + fileName            
+            body: 'Saved at: ' + fileName,
+            logo: <img src={state.iconDataUrl}></img>           
         });
     }
 
