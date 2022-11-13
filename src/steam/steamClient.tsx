@@ -16,6 +16,7 @@ interface ScreenshotDetails {
 
 interface Screenshots {
     GetLastScreenshotTaken: () => Promise<ScreenshotDetails | null>;
+    GetAllAppsLocalScreenshots: () => Promise<ScreenshotDetails[]>
 }
 
 interface ScreenshotNotification {
@@ -29,7 +30,7 @@ interface GameSessions {
     RegisterForScreenshotNotification: (callback: (notification: ScreenshotNotification) => void) => UnregisterHandle;
 }
 
-interface SteamClientHandle {
+export interface SteamClientHandle {
     Screenshots: Screenshots;
     GameSessions: GameSessions;
 }
