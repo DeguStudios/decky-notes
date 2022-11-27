@@ -45,6 +45,9 @@ export function Whiteboard({pickImage, saveWhiteboard} : WhiteboardHandler) {
   const blue = '#0000FF';
   const yellow = '#FFFF00';
 
+  const windowHeight = 534;
+  const windowWidth = 854;
+
   const [isErasing, setIsErasing] = useState(false);
   const [drawColor, setDrawColor] = useState(black);
 
@@ -256,7 +259,7 @@ export function Whiteboard({pickImage, saveWhiteboard} : WhiteboardHandler) {
     <div>
       <div>
         <canvas ref={drawingCanvasRef} 
-                width={window.innerWidth} height={window.innerHeight - steamBorderMargin*2}
+                width={windowWidth} height={windowHeight - steamBorderMargin*2}
                 onTouchStart={onTouch}
                 onTouchMove={onTouch}
                 onTouchEnd={onTouch} onTouchCancel={onTouch}
@@ -266,7 +269,7 @@ export function Whiteboard({pickImage, saveWhiteboard} : WhiteboardHandler) {
                 style={drawingLayerStyle}>    
         </canvas>
         <canvas ref={backgroundCanvasRef} 
-                width={window.innerWidth} height={window.innerHeight - steamBorderMargin*2}
+                width={windowWidth} height={windowHeight - steamBorderMargin*2}
                 style={backgroundLayerStyle}>
         </canvas>
       </div>
