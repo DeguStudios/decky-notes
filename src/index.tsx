@@ -63,11 +63,11 @@ const patchDeckyNotesButtonIntoDialogModal = (goToWhiteBoard: (screenshotHandle:
         if (typeof m !== 'object')
             return undefined;
         for (let prop in m) {
-            if (m[prop]?.toString()?.includes('contextMenuItem') && m[prop]?.toString()?.includes('onSelected')) {
+            if (m[prop]?.render?.toString()?.includes('bPlayAudio')) {
                 return m[prop];
             }
         }
-    })
+    });
     const DeckyNotesButtonId = 'c380565cddab4d1294086a3b29dc96bf';
     const DeckyNotesButton = ({screenshotHandle}:{screenshotHandle:string}): JSX.Element => {
         return (

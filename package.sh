@@ -17,6 +17,7 @@ cp package.json $TARGET/package.json
 cp plugin.json $TARGET/plugin.json
 cp main.py $TARGET/main.py
 cp README.md $TARGET/README.md
+cp LICENSE $TARGET/LICENSE
 
 zip -r $ZIP_NAME $TARGET
 
