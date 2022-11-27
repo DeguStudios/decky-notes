@@ -12,9 +12,9 @@ export default defineConfig({
   input: './src/index.tsx',
   plugins: [
     commonjs(),
-    nodeResolve(),
+    nodeResolve(),   
     typescript(),
-    json(),
+    json(),    
     replace({
       preventAssignment: false,
       'process.env.NODE_ENV': JSON.stringify('production'),
@@ -29,7 +29,7 @@ export default defineConfig({
     file: 'dist/index.js',
     globals: {
       react: 'SP_REACT',
-      'react-dom': 'SP_REACTDOM',
+      'react-dom': 'SP_REACTDOM'
     },
     format: 'iife',
     exports: 'default',
